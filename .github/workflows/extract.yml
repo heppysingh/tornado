@@ -38,14 +38,14 @@ jobs:
         run: |
           curl -L --fail --retry 5 --retry-delay 5 --retry-all-errors \
             --speed-time 30 --speed-limit 5000 \
-            -o firmware_package "${{ github.event.inputs.firmware_url }}"
+            -o firmware_package.tgz "${{ github.event.inputs.firmware_url }}"
           ls -lh firmware_package
 
       - name: Run dumpyara
         run: |
           mkdir -p dump_output
           cd dump_output
-          python3 -m dumpyara ../firmware_package
+          python3 -m dumpyara ../firmware_package.tgz
           echo "---- dumpyara output ----"
           find . -maxdepth 2
 
