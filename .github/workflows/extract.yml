@@ -1,0 +1,103 @@
+name: Extract Stock Firmware (dumpyara)
+
+on:
+  workflow_dispatch:
+    inputs:
+      firmware_url:
+        description: 'URL of the firmware package (tgz/zip/etc)'
+        required: true
+        default: 'https://xm04.space/MyUrLiwlJzsOOD0BMz8GIywRNEEOFTAINBUpIzE/KzUOPDJBGyEELhsQMDUxIS0eGz8dLzE/Hx4OFQRBDjwfDDQ8Kw8bFQQeNBIuAA4KBCYzPC0wMQofHg4KHwwxED0kQh4HLycSIjgnFgcvJxIXFUIJPUADLTUfDj8rDCwKFzUbIT0cMxUXHBsRAAw5CgQmPBEtIzkVNC0sMD0kQh4HLycSIjgnFgcvJxIXFUIJPUADLTUfPB4HQScCQgAnFgcuDgIdQScWHS8nFhocJwNCLycEPQgxLToXBSEEAjkRBzAFFjIpDiArIAsgADonAywiBRY5IgUDBj8nBhMT'
+
+permissions:
+  contents: write
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /usr/local/.ghcup
+          sudo docker image prune -a -f || true
+          df -h
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Install dumpyara and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y android-sdk-libsparse-utils erofs-utils e2tools e2fsprogs \
+            brotli p7zip-full lz4 cpio python3-pip python3-setuptools git-lfs
+          pip install --break-system-packages dumpyara
+          git lfs install
+
+      - name: Download firmware package
+        run: |
+          curl -L --fail --retry 5 --retry-delay 5 --retry-all-errors \
+            --speed-time 30 --speed-limit 5000 \
+            -o firmware_package "${{ github.event.inputs.firmware_url }}"
+          ls -lh firmware_package
+
+      - name: Run dumpyara
+        run: |
+          mkdir -p dump_output
+          cd dump_output
+          python3 -m dumpyara ../firmware_package
+          echo "---- dumpyara output ----"
+          find . -maxdepth 2
+
+      - name: Sync into repo
+        run: |
+          rm -rf firmware
+          mkdir -p firmware
+          # dumpyara typically nests output under a build-id folder — flatten whichever it produced
+          SRC_DIR=$(find dump_output -mindepth 1 -maxdepth 1 -type d | head -n1)
+          if [ -z "$SRC_DIR" ]; then
+            SRC_DIR="dump_output"
+          fi
+          cp -r "$SRC_DIR"/. firmware/
+          find firmware -maxdepth 2
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config http.postBuffer 524288000
+          git config http.version HTTP/1.1
+
+          # anything over ~90MB goes through Git LFS instead of a normal blob
+          find firmware -type f -size +90M > /tmp/lfsfiles.txt || true
+          if [ -s /tmp/lfsfiles.txt ]; then
+            while IFS= read -r F; do
+              git lfs track "$F"
+            done < /tmp/lfsfiles.txt
+            git add .gitattributes
+            git commit -m "Track large files via Git LFS" || true
+          fi
+
+          for DIR in firmware/*/; do
+            NAME=$(basename "$DIR")
+            find "$DIR" -type f > /tmp/filelist.txt
+            split -l 2000 /tmp/filelist.txt /tmp/chunk_
+            i=0
+            for CHUNK in /tmp/chunk_*; do
+              [ -f "$CHUNK" ] || continue
+              i=$((i+1))
+              xargs -a "$CHUNK" git add
+              if git diff --cached --quiet; then
+                rm -f "$CHUNK"
+                continue
+              fi
+              git commit -m "Extract $NAME part $i via dumpyara from ${{ github.event.inputs.firmware_url }}"
+              for r in 1 2 3 4 5; do
+                git push && break
+                echo "push attempt $r for $NAME part $i failed, retrying in 20s"
+                sleep 20
+              done
+              rm -f "$CHUNK"
+            done
+            rm -f /tmp/filelist.txt
+          done
