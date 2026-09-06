@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+listeners is a statues set,if corresponding position is 1, that mean reg this listener.
+    Now, contain the listener is:
+    receiver,wifi_spot,bluetooth,bluetooth_pan,sarsensor1,sarsensor2,mcc,wifi,cable,hall,usb
+    1: need to reg, 0 : don`t reg
+    like for J18 device, listeners that need to reg is:  11111111110
+    like for J3S device, listeners that need to reg is:  11111111100
+    like for J1/J2 device, listeners that need to reg is 11111011000
+dsiMap：
+    1. F mean NA,the other state is corresponding listener value.
+    2. wifi_spot,bluetooth,bluetooth_pan is one state: hotSpot.
+    receiver,hotSpot,sarsensor1,sarsensor2,mcc,wifi,cable,hall,usb
+    like for J18 device:
+        DSI1: 10FF1F00
+        DSI2: 10FF2F00,10FF3F00 == 10FF4F00
+        DSI3: 0020FF00
+        DSI4: 00102F00,00103F00 == 00104F00
+        an so on
+-->
+<SarDsiConfig>
+    <!-- use for sar uncouple framework -->
+    <sarVersion>2</sarVersion>
+
+    <!-- only use for CN -->
+    <deviceSarConfig device_name="tornado">
+        <prop prop_name="ro.boot.hwc">CN</prop>
+        <!-- receiver,hotSpot(wifi_spot,(bluetooth,bluetooth_pan)),sarsensor1,sarsensor2,mcc,wifi,cable,hall,usb,lab,white_list,hall2,sarsensor3 -->
+        <listeners>100000000001000</listeners>
+        <!-- receiver,sarsensor1,sarsensor2,lab -->
+        <dsimap value="10">1</dsimap>
+        <dsimap value="00">2</dsimap>
+        <dsimap value="11">3</dsimap>
+        <dsimap value="01">4</dsimap>
+    </deviceSarConfig>
+
+    <!-- only use for GL --> 
+    <deviceSarConfig device_name="tornado">
+        <prop prop_name="ro.boot.hwc">Global</prop>
+        <!-- receiver,hotSpot(wifi_spot,(bluetooth,bluetooth_pan)),sarsensor1,sarsensor2,mcc,wifi,cable,hall,usb,lab,white_list,hall2,sarsensor3 -->
+        <listeners>1111110000010010001</listeners>
+        <simMccList>001,002,432,630,629,450,404,405,406,429,413,470,716,712,732,730,748,744,736,714,704,370,722,740,706,708,710</simMccList>
+        <!-- receiver,hotSpot(wifi_spot),sarsensor1,sarsensor2,sarsensor3 -->
+        <dsimap value="10FF0FF">1</dsimap>
+        <dsimap value="10FF1F0">1</dsimap>
+        <dsimap value="001000F">2</dsimap>
+        <dsimap value="0010100">2</dsimap>
+        <dsimap value="00F10FF">3</dsimap>
+        <dsimap value="00FF01F">3</dsimap>
+        <dsimap value="00F11F0">3</dsimap>
+        <dsimap value="00FF110">3</dsimap>
+        <dsimap value="000000F">4</dsimap>
+        <dsimap value="0000100">4</dsimap>
+        <dsimap value="F1FF0FF">5</dsimap>
+        <dsimap value="F1FF1F0">5</dsimap>
+        <dsimap value="FFFF1F1">6</dsimap>
+    </deviceSarConfig>
+
+    <!-- only use for IN --> 
+    <deviceSarConfig device_name="tornado">
+        <prop prop_name="ro.boot.hwc">India</prop>
+        <!-- receiver,hotSpot(wifi_spot,(bluetooth,bluetooth_pan)),sarsensor1,sarsensor2,mcc,wifi,cable,hall,usb,lab,white_list,hall2,sarsensor3 -->
+        <listeners>100000000000000</listeners>
+        <!-- receiver,hotspot,sarsensor1,sarsensor2 -->
+        <dsimap value="1">1</dsimap>
+        <dsimap value="0">2</dsimap>
+    </deviceSarConfig>
+
+    <!-- default configuration -->
+    <deviceSarConfig device_name="tornado">
+        <prop prop_name="ro.boot.hwc">default</prop>
+        <prop prop_name="ro.product.mod_device">default</prop>
+        <listeners>111111000000001</listeners>
+        <!-- receiver,hotSpot(wifi_spot),sarsensor1,sarsensor2,sarsensor3 -->
+        <dsimap value="10FFF">1</dsimap>
+        <dsimap value="00100">2</dsimap>
+        <dsimap value="00F1F">3</dsimap>
+        <dsimap value="00FF1">3</dsimap>
+        <dsimap value="00000">4</dsimap>
+        <dsimap value="F1FFF">5</dsimap>
+    </deviceSarConfig>
+</SarDsiConfig>
