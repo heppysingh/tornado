@@ -1,0 +1,28 @@
+####################################
+# from generate-common-build-props
+# These properties identify this partition image.
+####################################
+ro.product.bootimage.brand=Redmi
+ro.product.bootimage.device=tornado
+ro.product.bootimage.manufacturer=Xiaomi
+ro.product.bootimage.model=tornado
+ro.product.bootimage.name=tornado_in
+ro.product.bootimage.marketname=
+ro.product.bootimage.cert=
+ro.product.model_for_attestation=tornado
+ro.product.brand_for_attestation=Redmi
+ro.product.name_for_attestation=miodm_tornado_in
+ro.product.manufacturer_for_attestation=Xiaomi
+ro.product.device_for_attestation=tornado
+ro.bootimage.build.date=Fri Oct 24 19:35:17 CST 2025
+ro.bootimage.build.date.utc=1761305717
+ro.bootimage.build.fingerprint=Redmi/tornado_in/tornado:13/TP1A.220624.014/OS2.0.202.0.VPOINXM:user/release-keys
+ro.bootimage.build.id=TP1A.220624.014
+ro.bootimage.build.tags=release-keys
+ro.bootimage.build.type=user
+ro.bootimage.build.version.incremental=OS2.0.202.0.VPOINXM
+ro.bootimage.build.version.release=13
+ro.bootimage.build.version.release_or_codename=13
+ro.bootimage.build.version.sdk=33
+# end of file
+
