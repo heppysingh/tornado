@@ -1,0 +1,39 @@
+#line 1 "system/sepolicy/flagging/te_macros"
+####################################
+# is_flag_enabled(flag, rules)
+# SELinux rules which apply only if given feature is turned on
+
+
+####################################
+# is_flag_disabled(flag, rules)
+# SELinux rules which apply only if given feature is turned off
+
+
+####################################
+# starting_at_board_api(api_level, rules_if_api_level)
+#
+# This macro conditionally exposes SELinux rules ensuring they are available
+# only when the board API level is at or above the specified 'api_level'.
+
+
+####################################
+# until_board_api(api_level, rules_if_lower_api_level)
+#
+# This macro conditionally exposes SELinux rules ensuring they are available
+# only when the board API level is below the specified 'api_level'.
+
+#line 1 "out_prd/soong/.intermediates/system/sepolicy/contexts/product_property_contexts/android_common/missi/newline"
+
+#line 1 "device/xiaomi/tornado/product/sepolicy/private/property_contexts"
+# add for wifimac prop,btmac prop,factoryid prop
+ro.ril.oem.wifimac                         u:object_r:vendor_wifimac_prop:s0
+ro.ril.oem.btmac                           u:object_r:vendor_btmac_prop:s0
+ro.ril.factory_id                          u:object_r:vendor_factoryid_prop:s0
+
+# add for disableinbandringing
+persist.bluetooth.disableinbandringing     u:object_r:debug_prop:s0
+
+#audio CID
+vendor.audio.usb_cctoggle                  u:object_r:audio_prop:s0
+#line 1 "out_prd/soong/.intermediates/system/sepolicy/contexts/product_property_contexts/android_common/missi/newline"
+
